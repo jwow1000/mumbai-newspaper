@@ -26,10 +26,11 @@ export function fetchMojes() {
                         'project', 
                         'source', 
                         'content', 
-                        'translation'
+                        'translation',
+                        'date'
                       ],
                 sort: [{operator: "+", key: 'title'}],
-                range: [0, 300]
+                range: [0, 10]
             }
         })
     });
