@@ -1,4 +1,4 @@
-import { fetchMojes } from "./helpers/fetch.js";
+import { fetchMojes } from "./fetch.js";
 
 
 // Function to convert JSON array to CSV format
@@ -68,42 +68,44 @@ function parseName( title ) {
   return title;
 }
 
-
-fetchMojes().then( (data) => {
-  console.log("wow data: ", data)
-  // filter data in json format before csv convert
-  // get rid of Mojes Worli
-  const mapped = data.map((item) => {
-    const descripDe = parseDescription( item.description );
-    // parse the description html into seperate fields
-    const newJson = {
-      "name": parseName( item.title ),
-      "marathi-title": descripDe.headlineTranslation,
-      "tags": item.keywords,
-      "date-published": item.date,
-      "type": item.author,
-      "publisher": item.publisher,
-      "place": item.place,
-      "language": item.language,
-      "voices": descripDe.voices,
-      "larger-questions": descripDe.largerQuestions,
-      "body-text-english": item.translation,
-      "body-text-marathi": item.content,
-      "image-id": item.id
-    }
-    return newJson;
-
-  })
-
-  console.log("amppeed", mapped)
-
+export function convertMojesToCSV() {
+  console.log("fired?")
+  fetchMojes().then( (data) => {
+    console.log("wow data: ", data)
+    // filter data in json format before csv convert
+    // get rid of Mojes Worli
+    const mapped = data.map((item) => {
+      const descripDe = parseDescription( item.description );
+      // parse the description html into seperate fields
+      const newJson = {
+        "name": parseName( item.title ),
+        "marathi-title": descripDe.headlineTranslation,
+        "tags": item.keywords,
+        "date-published": item.date,
+        "type": item.author,
+        "publisher": item.publisher,
+        "place": item.place,
+        "language": item.language,
+        "voices": descripDe.voices,
+        "larger-questions": descripDe.largerQuestions,
+        "body-text-english": item.translation,
+        "body-text-marathi": item.content,
+        "image-id": item.id
+      }
+      return newJson;
   
-  // console.log("csvData", csvData)
+    })
   
-  // Download the CSV file
-  const csvData = convertToCSV( mapped );
-  downloadCSV(csvData, 'mojes_data.csv');
-
-
-});
+    console.log("amppeed", mapped)
+  
+    
+    // console.log("csvData", csvData)
+    
+    // Download the CSV file
+    const csvData = convertToCSV( mapped );
+    downloadCSV(csvData, 'mojes_data.csv');
+  
+  
+  });
+}
 
