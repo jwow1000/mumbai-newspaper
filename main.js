@@ -1,80 +1,37 @@
-import { fetchMojes } from "./helpers/fetch.js";
-// https://ctrl-z.in/frontest/pandoradocs/2.js
+import { getRandomInt } from "./helpers/random.js";
 
-// grab element
-const canvas = document.getElementById( 'canvas-newspaper' );
-const newsItem = document.querySelector(".newspaper-container");
+let loop = 0;
+const container = document.querySelector(".newspaper-articles-container")
+// // get all newspaper elements, position them across a large window
 
-console.log(canvas)
+// get the newspaper collection items
+const newspaperItems = document.querySelectorAll(".newspaper-article-item");
+console.log("newspaperItems", newspaperItems);
 
-// get data
-let articleArray = [];
 
-// add filter by tag
-// add pagination for results
 
-fetchMojes().then( (data) => {
-  articleArray = data;
-  console.log(data)
-  articleArray.forEach(( article ) => {
-    const div = document.createElement("div");
-    const imgSrc = `https://pad.ma/documents/${ article.id }/512p.jpg`;
-    const link = `https://pad.ma/m/documents/${ article.id }/`
-    const header = article.title.replace("Mojes Worli: ", "");
-    const tags = `
-      <button class="tag-button">Central Park</button>
-      <button class="tag-button">Swamps</button>
+const total = newspaperItems.length;
+// run through the newspaper items and create new positions
+function render() {
+  newspaperItems.forEach( (item, idx) => {
+    const sine = Math.sin(((idx / total) + loop) * (Math.PI * 2) );
+    const cos = Math.cos(((idx / total) + loop) *  (Math.PI * 2 ) );
+    const normSine = (sine / 2) + 0.5;
+    const normCos = (cos / 2) + 0.5;
     
-    `
-
-    const newArticle = newsItem.cloneNode( true );
-
-    console.log("childsds", newArticle)
-
-    const setImg = newArticle.querySelector(".newspaper-image");
-    setImg.srcset = imgSrc;
-
-    const setTitle = newArticle.querySelector(".newspaper-headline");
-    setTitle.innerText = header;
-
-    const setDate = newArticle.querySelector(".newspaper-date"); 
-    setDate.innerText = article.date;
+    // x translate absolute
+    item.style.left = `${(normSine * 300) - 120}%`;
+    item.style.top = `${normCos * 50}%`; 
     
-    const setContent = newArticle.querySelector(".newspaper-content-eng"); 
-    setContent.innerHTML = article.content;
-    
-    // !!!!!!!! old way
-    // div.innerHTML = `
-    //   <div class="newspaper-container" style="display: block;">
-    //     <div class="newspaper-line"></div>
-        
-    //     <div class="newspaper-left">
-    //       <div class="newspaper-image-cont">
-    //         <img class="newspaper-image" src=${ imgSrc } alt=${ article.title} >
-    //       </div>  
-    //       <div class="newspaper-title-cont">
-    //           <h5 class="newspaper-date">${article.date}</h5>
-    //           <h2 class="newspaper-headline">${header}</h2>
-    //       </div>
-    //     </div>
-
-    //     <div class="newspaper-content-cont">
-    //       <div class="newspaper-tag-cont">${ tags }</div>
-    //       <p class="newspaper-content-eng">${ article.content }</p>
-    //     </div>
-
-    //   </div>
-    // `
-    
-    canvas.appendChild( newArticle );
+    // translate Z axis 
+    item.style.transform = `scale(${cos / 4 + 0.5})`;
   });
-  
 
+}
+render();
 
-
+window.addEventListener("click", (event) => {
+  console.log("whaaat")
+  loop += 0.1;
+  render();
 });
-
-{/* <a href=${ link } target="_blank" loading="lazy">
-<h2 class="wonky">${ header }</h2>
-${ imgDiv }
-</a> */}

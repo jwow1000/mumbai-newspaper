@@ -1,15 +1,17 @@
 {
-  "name": "newspaper",
+  "name": "dahisar-3d",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "copyfiles --flat dist/assets/main.js webflow",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^5.4.1",
+    "copyfiles": "^2.4.1",
+    "vite": "^5.4.0",
     "vite-plugin-mkcert": "^1.17.6"
   }
 }

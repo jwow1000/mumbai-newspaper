@@ -20,14 +20,17 @@ export function fetchMojes() {
                     ]
                 },
                 keys: [
-                        'id', 
-                        'title', 
-                        'description', 
-                        'project', 
-                        'source', 
-                        'content', 
+                        'title',
+                        'keywords',
+                        'date',
+                        'author',
+                        'publisher',
+                        'place',
+                        'language',
+                        'description',
                         'translation',
-                        'date'
+                        'content',
+                        'id',
                       ],
                 sort: [{operator: "+", key: 'title'}],
                 range: [0, 10]
