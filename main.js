@@ -13,12 +13,12 @@ function onScroll( event ) {
   const hori = event.horizontal;
   
   if( vert === "down") {
-    loopX += 5;
+    loopX += 10;
     if( loopX < 0 ) {
       loopX = 100;
     } 
   } else if( vert === "up") {
-    loopX -= 5;
+    loopX -= 10;
     if ( loopX > 100) {
       loopX = 0;
     }
@@ -64,18 +64,22 @@ function render() {
 
     // get og yPos with divide and floor
     let getYPos = Math.floor( idx / 10 ) * 10;
+    // // checkerboard Y mod
+    const offsetY = idx % 2;
+    
 
-    const yPos = ( loopX + getYPos ) % 100;
+    const yPos = ( loopX + getYPos + (offsetY*4) ) % 100;
     console.log("wtfff", yPos)
 
+    
     
 
     // x and y translate 
     // translate pseudo Z axis, using scale
     item.style.transform = `
       translate( 
-        ${((normSineY * 400) - 200) + 100}%,
-        ${((yPos/100) * 1000) - 200}%
+        ${((normSineY * 300) - 100) + 50}%,
+        ${((yPos/100) * 2000) - 200}%
       )
       scale(${( normCosY ) / 2})
     `;
