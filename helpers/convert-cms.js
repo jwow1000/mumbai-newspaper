@@ -68,19 +68,41 @@ function parseName( title ) {
   return title;
 }
 
+function extractHeadline(text) {
+  // Define a regular expression to capture the text between "<b>OCR text:</b> <br>" and "<br><br>"
+  const pattern = /<b>OCR text:<\/b>\s*<br>\s*(.*?)\s*<br><br>/s;
+
+  // Use String.prototype.match to find the match
+  const match = text.match(pattern);
+  
+  if (match) {
+      // Get the matched group which is the headline and trim whitespace
+      const headline = match[1].trim();
+      console.log("marathhi headline: ", headline)
+      return headline;
+  }
+  return null;
+}
+
+
 export function convertMojesToCSV() {
   console.log("fired?")
   fetchMojes().then( (data) => {
-    console.log("wow data: ", data)
     // filter data in json format before csv convert
     // get rid of Mojes Worli
     const mapped = data.map((item) => {
+      const tags = item.keywords;
+     
+      
       const descripDe = parseDescription( item.description );
       // parse the description html into seperate fields
       const newJson = {
-        "name": parseName( item.title ),
-        "marathi-title": descripDe.headlineTranslation,
-        "tags": item.keywords,
+        // "name": parseName( item.title ),
+        "name": descripDe.headlineTranslation,
+        "english-title": descripDe.headlineTranslation,
+        "marathi-title": extractHeadline( item.content ),
+        "tags1": tags?.length > 0 ? tags[0] : "",
+        "tags2": tags?.length > 1 ? tags[1] : "",
         "date-published": item.date,
         "type": item.author,
         "publisher": item.publisher,

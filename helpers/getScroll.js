@@ -1,6 +1,7 @@
 // scrollCapture.js
 export function captureScroll(callback, delay) {
   let startX = 0, startY = 0;
+  let direction = 0;
   let isThrottled = false;
 
   // Handle desktop/laptop scroll (wheel event)
