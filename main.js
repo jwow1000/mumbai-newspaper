@@ -40,10 +40,9 @@ Webflow.push(function() {
   // the container
   const container = document.querySelector(".newspaper-articles-container");
 
-  
-  
   // get the newspaper collection items
   const newspaperItems = document.querySelectorAll(".newspaper-article-item");
+  
   
   
   
@@ -52,26 +51,29 @@ Webflow.push(function() {
   // run through the newspaper items and create new positions
   function render() {
     newspaperItems.forEach( (item, idx) => {
+      console.log("newspaper items: ", item)
+      
       // make visible
       if(!start) {
         item.style.opacity = 1;
       }
       
       if(langSwap === "english") {
-         // get the english data
+        // get the english data
+        const title = item.children[0].children[0].getAttribute('data-english-title');
 
-         const title = item.children[0].children[0].getAttribute('data-english-title');
+        // apply the data kind of crazy but works
+        item.children[2].children[0].innerText = title;
 
-         // kind of crazy but works
-         item.children[2].children[0].innerText = title;
       } else {
-         // get the marathi data
-         const title = item.children[0].children[0].getAttribute('data-marathi-title');
+        // get the marathi data
+        const title = item.children[0].children[0].getAttribute('data-marathi-title');
 
-         // kind of crazy but works
-         item.children[2].children[0].innerText = title;
+        // apply the data kind of crazy but works
+        item.children[2].children[0].innerText = title;
+
       }
-
+      
   
       // calculate yPositon based on groups of 10, normalize
   

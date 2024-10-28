@@ -77,13 +77,16 @@ function extractHeadline(text) {
   
   if (match) {
       // Get the matched group which is the headline and trim whitespace
-      const headline = match[1].trim();
-      console.log("marathhi headline: ", headline)
+      let headline = match[1].trim();
+
+      // Replace any line breaks or multiple spaces with a single space
+      headline = headline.replace(/(\r\n|\n|\r|\s\s+)/g, ' ');
+
+      console.log("marathhi headline:", headline);
       return headline;
   }
   return null;
 }
-
 
 export function convertMojesToCSV() {
   console.log("fired?")
@@ -91,18 +94,15 @@ export function convertMojesToCSV() {
     // filter data in json format before csv convert
     // get rid of Mojes Worli
     const mapped = data.map((item) => {
-      const tags = item.keywords;
-     
-      
       const descripDe = parseDescription( item.description );
+      
       // parse the description html into seperate fields
       const newJson = {
         // "name": parseName( item.title ),
         "name": descripDe.headlineTranslation,
         "english-title": descripDe.headlineTranslation,
         "marathi-title": extractHeadline( item.content ),
-        "tags1": tags?.length > 0 ? tags[0] : "",
-        "tags2": tags?.length > 1 ? tags[1] : "",
+        "keywords": item.keywords ? item.keywords.join(", ") : "",
         "date-published": item.date,
         "type": item.author,
         "publisher": item.publisher,
