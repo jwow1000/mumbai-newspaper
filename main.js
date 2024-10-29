@@ -10,7 +10,30 @@ let langSwap = 'english';
 // convertMojesToCSV();
 
 Webflow.push(function() {
+ 
+  
+  
+  // get the tag filter buttons
+  const tagButtons = document.querySelectorAll(".tag-filter-button");
+  console.log("tag buttons: ", tagButtons)
+  // add a click function that changes the slug and re-renders with a filter
+  tagButtons.forEach( (item) => {
+    item.addEventListener("click", () => {
+      // get item's tag
+      const theTag =  item.childNodes[1].childNodes[0].textContent;
+      // change url parameter, and rerender
+      const url = new URL(window.location.href);
+      const params = new URLSearchParams(url.search);
+      params.set('tag', theTag.toLowerCase() );
+      url.search = params.toString();
+      window.history.replaceState({}, '', url);
 
+      // clearAll();
+      filter();
+      render();
+    })
+  });
+  
   // capture scroll
   function onScroll( event ) {
     const vert = event.vertical;
@@ -40,23 +63,60 @@ Webflow.push(function() {
   // the container
   const container = document.querySelector(".newspaper-articles-container");
 
+  // get window size
+  const vpSize = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }
+
   // get the newspaper collection items
   const newspaperItems = document.querySelectorAll(".newspaper-article-item");
   
+  // clear all newspaper items function
+  function clearAll() {
+    container.innerHTML = "";
+  }
+
+  // filter the newspaper items based on url params
+  let newspaperItemsFilter = newspaperItems;
   
-  
-  
-  const total = newspaperItems.length;
+  function filter() {
+    // get the url param 'tag', if no tag use newspaperItems 
+    
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('tag');
+
+    console.log("paramssas", params)
+    if( slug ) {
+      // filter based on tag
+      newspaperItemsFilter = Array.from(newspaperItems).filter( (item) => {
+        const tags = item.querySelector('#get-data').getAttribute('data-tags');
+        if( tags.toLocaleLowerCase().includes( slug.toLowerCase() ) ) {
+          item.style.display = "block";
+          return item;
+        } else {
+          item.style.display = "none";
+        }
+
+      });
+    } else {
+      newspaperItems.forEach( (item) => {
+        item.style.display = "block";
+      });
+    }
+  }
   
   // run through the newspaper items and create new positions
   function render() {
-    newspaperItems.forEach( (item, idx) => {
-      console.log("newspaper items: ", item)
+    
+    newspaperItemsFilter.forEach( (item, idx) => {
       
       // make visible
       if(!start) {
         item.style.opacity = 1;
       }
+
+      item.style.display = "block";
       
       if(langSwap === "english") {
         // get the english data
@@ -76,7 +136,9 @@ Webflow.push(function() {
       
   
       // calculate yPositon based on groups of 10, normalize
-  
+      // scale to amount 
+      const total = newspaperItemsFilter.length;
+      console.log("total: ", total)
       // width circle math, rotate around yAxis
       const yAxisControl = (idx % 10) / 10;
       const sineY = Math.sin( (yAxisControl + loopY) * (Math.PI * 2) );
@@ -99,8 +161,8 @@ Webflow.push(function() {
       // translate pseudo Z axis, using scale
       item.style.transform = `
         translate( 
-          ${((normSineY * 300) - 100) + 50}%,
-          ${((yPos/100) * 2000) - 200}%
+          ${ (normSineY * 300) - 25 }%,
+          ${ ((yPos/100) * ((total/100)*1500)) - 200 }%
         )
         scale(${ handleScale( ( normCosY ) / 2) })
       `;
@@ -109,6 +171,9 @@ Webflow.push(function() {
     });
   
   }
+
+  // first call for filter and render
+  filter();
   render();
   
   // (hoist) if size is small make 0, make the little ones in the back 'dissapear'
@@ -129,12 +194,15 @@ Webflow.push(function() {
     marathiButton.classList.remove('selected');
     englishButton.classList.add('selected');
     if(langSwap !== 'english') langSwap = "english";
+    // no need to refilter, just render
     render();
   });
+  
   marathiButton.addEventListener("click", () => {
     englishButton.classList.remove('selected');
     marathiButton.classList.add('selected');
     if(langSwap !== 'marathi') langSwap = "marathi";
+    // no need to refilter, just render
     render();
   });
   
