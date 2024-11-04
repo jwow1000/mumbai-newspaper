@@ -5,32 +5,58 @@ import { captureScroll } from "./helpers/getScroll.js";
 let loopY = 0;
 let loopX = 0;
 let start = false;
+let offset = 0;
 const scrollPos = {};
 let langSwap = 'english';
+let tagFilter = -1;
+let searchText = "";
 // convertMojesToCSV();
 
 Webflow.push(function() {
  
+  // get the search form and prevent page reload
+  document.querySelector(".search-form-newspaper").addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent form submission
+    const text = event.target.querySelector('.newspaper-search-input');
+    console.log("thes ", text.value)
+    searchText = text.value.toLowerCase();
+    
+    filter();
+    render();
+  });
   
   
   // get the tag filter buttons
   const tagButtons = document.querySelectorAll(".tag-filter-button");
-  console.log("tag buttons: ", tagButtons)
+  
   // add a click function that changes the slug and re-renders with a filter
-  tagButtons.forEach( (item) => {
+  tagButtons.forEach( (item, idx) => {
     item.addEventListener("click", () => {
-      // get item's tag
-      const theTag =  item.childNodes[1].childNodes[0].textContent;
-      // change url parameter, and rerender
-      const url = new URL(window.location.href);
-      const params = new URLSearchParams(url.search);
-      params.set('tag', theTag.toLowerCase() );
-      url.search = params.toString();
-      window.history.replaceState({}, '', url);
+      if( tagFilter !== idx) {
+        // get item's tag
+        let theTag =  item.childNodes[1].childNodes[0].textContent;
+        console.log("claude is cute: ", theTag);
+        theTag = (theTag === 'Policies & Regulations') ? 'policies and regulation' : theTag ;
+        // change url parameter, and rerender
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        params.set('tag', theTag.toLowerCase() );
+        url.search = params.toString();
+        window.history.replaceState({}, '', url);
+        
+        tagButtons.forEach((item) => {
+          item.style.opacity = "40%";
+        })
+        item.style.opacity = "100%";
+        
+        
+  
+        // clearAll();
+        filter();
+        render();
+        tagFilter = idx;
 
-      // clearAll();
-      filter();
-      render();
+      }
     })
   });
   
@@ -38,23 +64,30 @@ Webflow.push(function() {
   function onScroll( event ) {
     const vert = event.vertical;
     const hori = event.horizontal;
-    
+   
     if( vert === "down") {
-      loopX += 10;
-      if( loopX < 0 ) {
-        loopX = 100;
+      loopX += 1;
+      if( loopX > 10 ) {
+        loopX = 0;
       } 
     } else if( vert === "up") {
-      loopX -= 10;
-      if ( loopX > 100) {
-        loopX = 0;
+      loopX -= 1;
+      if ( loopX < 0) {
+        loopY = 10;
       }
     }
+
   
     if( hori === "left") {
-      loopY += -0.1;
+      loopY += 1;
+      if( loopY > 10) {
+        loopX = 0;
+      }
     } else if( hori === "right") {
-      loopY += 0.1;
+      loopY -= 1;
+      if( loopY < 10) {
+        loopY = 10;
+      }
     }
     render();
   }
@@ -84,23 +117,39 @@ Webflow.push(function() {
     // get the url param 'tag', if no tag use newspaperItems 
     
     const params = new URLSearchParams(window.location.search);
-    const slug = params.get('tag');
-
-    console.log("paramssas", params)
-    if( slug ) {
+    const getSlug = params.get('tag');
+    let slug = getSlug ? getSlug.toLowerCase() : "";
+   
+    if( slug && slug !== 'all') {
       // filter based on tag
       newspaperItemsFilter = Array.from(newspaperItems).filter( (item) => {
-        const tags = item.querySelector('#get-data').getAttribute('data-tags');
-        if( tags.toLocaleLowerCase().includes( slug.toLowerCase() ) ) {
-          item.style.display = "block";
-          return item;
+        const data = item.querySelector('#get-data');
+        const tags = data.getAttribute('data-tags').toLocaleLowerCase();
+        const mTitle = data.getAttribute('data-marathi-title').toLocaleLowerCase();
+        const eTitle = data.getAttribute('data-english-title').toLocaleLowerCase();
+
+        // console.log("look at tags: ", tags, slug)
+        if( tags.includes( slug ) ) {
+          // filter from search, if search is something; if match make visible, else display none
+          if( searchText ) {
+            if(mTitle.includes( searchText ) || eTitle.includes( searchText )) {
+              item.style.display = "block";
+              return item;
+            } else {
+              item.style.display = "none";
+            }
+          } else {
+            item.style.display = "block";
+            return item;
+          }
         } else {
           item.style.display = "none";
         }
 
+
       });
-    } else {
-      newspaperItems.forEach( (item) => {
+    } else if ( slug === "all" || !slug) {
+      newspaperItems.forEach( (item,idx) => {
         item.style.display = "block";
       });
     }
@@ -108,6 +157,7 @@ Webflow.push(function() {
   
   // run through the newspaper items and create new positions
   function render() {
+    const total = newspaperItemsFilter.length;
     
     newspaperItemsFilter.forEach( (item, idx) => {
       
@@ -134,38 +184,46 @@ Webflow.push(function() {
 
       }
       
-  
+      // if( offset === 1 ) {
+      //   item.style.transform = `
+      //     translate(100%, 0)
+      //   `
+      // } else if ( offset === -1 ) {
+      //   item.style.transform = `
+      //     translate(-100%, 0)
+      //   ` 
+      // }
       // calculate yPositon based on groups of 10, normalize
       // scale to amount 
-      const total = newspaperItemsFilter.length;
-      console.log("total: ", total)
-      // width circle math, rotate around yAxis
-      const yAxisControl = (idx % 10) / 10;
-      const sineY = Math.sin( (yAxisControl + loopY) * (Math.PI * 2) );
-      const cosY = Math.cos( (yAxisControl + loopY) * (Math.PI * 2 ) );
-      const normSineY = (sineY / 2) + 0.5;
-      const normCosY = (cosY / 2) + 0.5;
-  
-      // get og yPos with divide and floor
-      let getYPos = Math.floor( idx / 10 ) * 10;
-      // // checkerboard Y mod
-      const offsetY = idx % 2;
+
+    // move one row, one column
       
-  
-      const yPos = ( loopX + getYPos + (offsetY*4) ) % 100;
-  
+      // // width circle math, rotate around yAxis
+      // const yAxisControl = ( (idx+loopY) % 10 ) / 10;
+      // const sineY = Math.sin( (yAxisControl) * (Math.PI * 2) );
+      // const cosY = Math.cos( (yAxisControl) * (Math.PI * 2 ) );
+      // const normSineY = (sineY / 2) + 0.5;
+      // const normCosY = (cosY / 2) + 0.5;
       
+      // // get og yPos with divide and floor
+      // let getYPos = Math.floor( idx / 10 ) * 10;
       
+      // // // checkerboard Y mod
+      // const offsetY = idx % 2;
+      // const yPos = ( getYPos + offsetY ) % 10;
+      
+      // // calculate total height
+      // const totalHeight = (total/100) * 500;
   
-      // x and y translate 
-      // translate pseudo Z axis, using scale
-      item.style.transform = `
-        translate( 
-          ${ (normSineY * 300) - 25 }%,
-          ${ ((yPos/100) * ((total/100)*1500)) - 200 }%
-        )
-        scale(${ handleScale( ( normCosY ) / 2) })
-      `;
+      // // x and y translate 
+      // // translate pseudo Z axis, using scale
+      // item.style.transform = `
+      //   translate( 
+      //     ${ (normSineY * 100) }%,
+      //     ${ yPos * totalHeight }%
+      //   )
+      //   scale(${ handleScale( ( normCosY ) / 2) })
+      // `;
       
       
     });
@@ -181,7 +239,7 @@ Webflow.push(function() {
     if( amt < 0.2 ) {
       return 0
     } else {
-      return amt
+      return Math.pow(amt, 0.25);
     }
   }
   
