@@ -119,40 +119,62 @@ Webflow.push(function() {
     const params = new URLSearchParams(window.location.search);
     const getSlug = params.get('tag');
     let slug = getSlug ? getSlug.toLowerCase() : "";
-   
+    
+    // filter array by tag
+    function filterTag( item ) {
+      const data = item.querySelector('#get-data');
+      const tags = data.getAttribute('data-tags').toLocaleLowerCase();
+      
+      if( tags.includes( slug ) ) {
+        item.style.display = "block";
+        return item;
+        
+      } else {
+        item.style.display = "none";
+      }
+    }
+
+    // filter array by search text
+    function filterSearch( item ) {
+      const data = item.querySelector('#get-data');
+      const mTitle = data.getAttribute('data-marathi-title').toLocaleLowerCase();
+      const eTitle = data.getAttribute('data-english-title').toLocaleLowerCase();
+
+      if(mTitle.includes( searchText ) || eTitle.includes( searchText )) {
+        item.style.display = "block";
+        return item;
+      } else {
+        item.style.display = "none";
+      }
+    }
+
     if( slug && slug !== 'all') {
       // filter based on tag
-      newspaperItemsFilter = Array.from(newspaperItems).filter( (item) => {
-        const data = item.querySelector('#get-data');
-        const tags = data.getAttribute('data-tags').toLocaleLowerCase();
-        const mTitle = data.getAttribute('data-marathi-title').toLocaleLowerCase();
-        const eTitle = data.getAttribute('data-english-title').toLocaleLowerCase();
+      const newspaperItemsTags = Array.from(newspaperItems).filter( (item) => filterTag( item ));
+      
+      // filter for search
+      if( searchText ) {
+        newspaperItemsFilter = newspaperItemsTags.filter( (item) => filterSearch( item ));
+      } else {
+        newspaperItemsFilter = newspaperItemsTags;
+      }
 
-        // console.log("look at tags: ", tags, slug)
-        if( tags.includes( slug ) ) {
-          // filter from search, if search is something; if match make visible, else display none
-          if( searchText ) {
-            if(mTitle.includes( searchText ) || eTitle.includes( searchText )) {
-              item.style.display = "block";
-              return item;
-            } else {
-              item.style.display = "none";
-            }
-          } else {
-            item.style.display = "block";
-            return item;
-          }
-        } else {
-          item.style.display = "none";
-        }
-
-
-      });
     } else if ( slug === "all" || !slug) {
       newspaperItems.forEach( (item,idx) => {
         item.style.display = "block";
       });
+      
+      // filter for search
+      if( searchText ) {
+        newspaperItemsFilter = Array.from(newspaperItems).filter( (item) => filterSearch( item ));
+      } else {
+        newspaperItemsFilter = Array.from(newspaperItems);
+      }
+
     }
+
+
+
   }
   
   // run through the newspaper items and create new positions
