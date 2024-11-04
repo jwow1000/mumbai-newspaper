@@ -35,8 +35,9 @@ Webflow.push(function() {
       if( tagFilter !== idx) {
         // get item's tag
         let theTag =  item.childNodes[1].childNodes[0].textContent;
-        console.log("claude is cute: ", theTag);
+        // fix the and symbol
         theTag = (theTag === 'Policies & Regulations') ? 'policies and regulation' : theTag ;
+        
         // change url parameter, and rerender
         const url = new URL(window.location.href);
         const params = new URLSearchParams(url.search);
@@ -59,6 +60,27 @@ Webflow.push(function() {
       }
     })
   });
+  
+  // change the opacity of the tags
+  function tagOpacity() {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const tagSlug = params.get('tag'); 
+
+    tagButtons.forEach((item) => {
+      // get item's tag
+      let theTag =  item.childNodes[1].childNodes[0].textContent;
+      // fix the and symbol
+      theTag = (theTag === 'Policies & Regulations') ? 'policies and regulation' : theTag ; 
+      
+      if( tagSlug === theTag ) {
+        item.style.opacity = "100%";
+      } else {
+        item.style.opacity = "40%";
+      }
+
+    }) 
+  }
   
   // capture scroll
   function onScroll( event ) {
@@ -252,9 +274,10 @@ Webflow.push(function() {
   
   }
 
-  // first call for filter and render
+  // first call for filter and render and to make the tag buttons match slug
   filter();
   render();
+  tagOpacity();
   
   // (hoist) if size is small make 0, make the little ones in the back 'dissapear'
   function handleScale( amt ) {
