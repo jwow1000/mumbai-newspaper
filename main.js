@@ -82,38 +82,38 @@ Webflow.push(function() {
     }) 
   }
   
-  // capture scroll
-  function onScroll( event ) {
-    const vert = event.vertical;
-    const hori = event.horizontal;
+  // // capture scroll
+  // function onScroll( event ) {
+  //   const vert = event.vertical;
+  //   const hori = event.horizontal;
    
-    if( vert === "down") {
-      loopX += 1;
-      if( loopX > 10 ) {
-        loopX = 0;
-      } 
-    } else if( vert === "up") {
-      loopX -= 1;
-      if ( loopX < 0) {
-        loopY = 10;
-      }
-    }
+  //   if( vert === "down") {
+  //     loopX += 1;
+  //     if( loopX > 10 ) {
+  //       loopX = 0;
+  //     } 
+  //   } else if( vert === "up") {
+  //     loopX -= 1;
+  //     if ( loopX < 0) {
+  //       loopY = 10;
+  //     }
+  //   }
 
   
-    if( hori === "left") {
-      loopY += 1;
-      if( loopY > 10) {
-        loopX = 0;
-      }
-    } else if( hori === "right") {
-      loopY -= 1;
-      if( loopY < 10) {
-        loopY = 10;
-      }
-    }
-    render();
-  }
-  const stopScroll = captureScroll( onScroll, 1000 );
+  //   if( hori === "left") {
+  //     loopY += 1;
+  //     if( loopY > 10) {
+  //       loopX = 0;
+  //     }
+  //   } else if( hori === "right") {
+  //     loopY -= 1;
+  //     if( loopY < 10) {
+  //       loopY = 10;
+  //     }
+  //   }
+  //   render();
+  // }
+  // const stopScroll = captureScroll( onScroll, 1000 );
   
   // the container
   const container = document.querySelector(".newspaper-articles-container");
@@ -209,22 +209,39 @@ Webflow.push(function() {
       if(!start) {
         item.style.opacity = 1;
       }
-
+      // make visible
       item.style.display = "block";
+      
+      // get np-item-container
+      const np = document.querySelector('.np-item-container');
+      
+      // apply parallax effect
+      np.classList.add('parallax__layer');
+      if( (idx % 2) === 0 ) {
+        item.classList.add('parallax__layer--base');
+      } else {
+        item.classList.add('parallax__layer--back');
+      }
+      
+      // get the data item
+      const data = np.querySelector('#get-data');
+      // get where the text is rendered
+      const text = np.querySelector('.newspaper-headline');
+
       
       if(langSwap === "english") {
         // get the english data
-        const title = item.children[0].children[0].getAttribute('data-english-title');
+        const title = data.getAttribute('data-english-title');
 
-        // apply the data kind of crazy but works
-        item.children[2].children[0].innerText = title;
+        // apply the data, kind of crazy but works
+        text.innerText = title;
 
       } else {
         // get the marathi data
-        const title = item.children[0].children[0].getAttribute('data-marathi-title');
+        const title = data.getAttribute('data-marathi-title');
 
         // apply the data kind of crazy but works
-        item.children[2].children[0].innerText = title;
+        text.innerText = title;
 
       }
       
