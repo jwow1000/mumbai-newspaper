@@ -18,11 +18,13 @@ Webflow.push(function() {
   document.querySelector(".search-form-newspaper").addEventListener('submit', function(event) {
     event.preventDefault(); // Prevent form submission
     const text = event.target.querySelector('.newspaper-search-input');
-    console.log("thes ", text.value)
+    // console.log("thes ", text.value)
     searchText = text.value.toLowerCase();
     
     filter();
     render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
   });
   
   
