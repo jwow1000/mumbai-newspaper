@@ -2,10 +2,10 @@ import { getRandomInt } from "./helpers/random.js";
 import { convertMojesToCSV } from "./helpers/convert-cms.js";
 import { captureScroll } from "./helpers/getScroll.js";
 
-let loopY = 0;
-let loopX = 0;
+// let loopY = 0;
+// let loopX = 0;
 let start = false;
-let offset = 0;
+// let offset = 0;
 const scrollPos = {};
 let langSwap = 'english';
 let tagFilter = -1;

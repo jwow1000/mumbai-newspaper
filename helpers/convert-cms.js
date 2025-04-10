@@ -99,7 +99,7 @@ export function convertMojesToCSV() {
       // parse the description html into seperate fields
       const newJson = {
         // "name": parseName( item.title ),
-        "name": descripDe.headlineTranslation,
+        "name": `${descripDe.headlineTranslation?.slice(0, 200)}-import-01`,
         "english-title": descripDe.headlineTranslation,
         "marathi-title": extractHeadline( item.content ),
         "keywords": item.keywords ? item.keywords.join(", ") : "",

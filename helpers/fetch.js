@@ -33,7 +33,7 @@ export function fetchMojes() {
                         'id',
                       ],
                 sort: [{operator: "+", key: 'title'}],
-                range: [0,100]
+                range: [0,200]
             }
         })
     });
