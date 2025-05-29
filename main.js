@@ -150,7 +150,7 @@ Webflow.push(function() {
   function render() {
 
     newspaperItemsFilter.forEach( (item, idx) => {
-      console.log("newspaper item: ", item);
+      // console.log("newspaper item: ", item);
       // make visible
       if(!start) {
         item.style.opacity = 1;
