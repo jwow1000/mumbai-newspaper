@@ -1,11 +1,6 @@
-import { getRandomInt } from "./helpers/random.js";
-import { convertMojesToCSV } from "./helpers/convert-cms.js";
-import { captureScroll } from "./helpers/getScroll.js";
+// import { convertMojesToCSV } from "./helpers/convert-cms.js";
 
-// let loopY = 0;
-// let loopX = 0;
 let start = false;
-// let offset = 0;
 const scrollPos = {};
 let langSwap = 'english';
 let tagFilter = -1;
@@ -54,7 +49,6 @@ Webflow.push(function() {
         
         
   
-        // clearAll();
         filter();
         render();
         tagFilter = idx;
@@ -84,55 +78,8 @@ Webflow.push(function() {
     }) 
   }
   
-  // // capture scroll
-  // function onScroll( event ) {
-  //   const vert = event.vertical;
-  //   const hori = event.horizontal;
-   
-  //   if( vert === "down") {
-  //     loopX += 1;
-  //     if( loopX > 10 ) {
-  //       loopX = 0;
-  //     } 
-  //   } else if( vert === "up") {
-  //     loopX -= 1;
-  //     if ( loopX < 0) {
-  //       loopY = 10;
-  //     }
-  //   }
-
-  
-  //   if( hori === "left") {
-  //     loopY += 1;
-  //     if( loopY > 10) {
-  //       loopX = 0;
-  //     }
-  //   } else if( hori === "right") {
-  //     loopY -= 1;
-  //     if( loopY < 10) {
-  //       loopY = 10;
-  //     }
-  //   }
-  //   render();
-  // }
-  // const stopScroll = captureScroll( onScroll, 1000 );
-  
-  // the container
-  const container = document.querySelector(".newspaper-articles-container");
-
-  // get window size
-  const vpSize = {
-    width: window.innerWidth,
-    height: window.innerHeight,
-  }
-
   // get the newspaper collection items
   const newspaperItems = document.querySelectorAll(".newspaper-article-item");
-  
-  // clear all newspaper items function
-  function clearAll() {
-    container.innerHTML = "";
-  }
 
   // filter the newspaper items based on url params
   let newspaperItemsFilter = newspaperItems;
@@ -197,16 +144,13 @@ Webflow.push(function() {
 
     }
 
-
-
   }
   
   // run through the newspaper items and create new positions
   function render() {
-    const total = newspaperItemsFilter.length;
-    
+
     newspaperItemsFilter.forEach( (item, idx) => {
-      
+      console.log("newspaper item: ", item);
       // make visible
       if(!start) {
         item.style.opacity = 1;
@@ -225,69 +169,18 @@ Webflow.push(function() {
         item.classList.add('parallax__layer--back');
       }
       
-      // get the data item
-      const data = np.querySelector('#get-data');
       // get where the text is rendered
-      const text = np.querySelector('.newspaper-headline');
+      const englishHeadline = item.querySelector('.newspaper-headline');
+      const marathiHeadline = item.querySelector('.newspaper-headline.marathi');
 
       
       if(langSwap === "english") {
-        // get the english data
-        const title = data.getAttribute('data-english-title');
-
-        // apply the data, kind of crazy but works
-        text.innerText = title;
-
+        englishHeadline.style.display = 'block';
+        marathiHeadline.style.display = 'none';
       } else {
-        // get the marathi data
-        const title = data.getAttribute('data-marathi-title');
-
-        // apply the data kind of crazy but works
-        text.innerText = title;
-
+        englishHeadline.style.display = 'none';
+        marathiHeadline.style.display = 'block';
       }
-      
-      // if( offset === 1 ) {
-      //   item.style.transform = `
-      //     translate(100%, 0)
-      //   `
-      // } else if ( offset === -1 ) {
-      //   item.style.transform = `
-      //     translate(-100%, 0)
-      //   ` 
-      // }
-      // calculate yPositon based on groups of 10, normalize
-      // scale to amount 
-
-    // move one row, one column
-      
-      // // width circle math, rotate around yAxis
-      // const yAxisControl = ( (idx+loopY) % 10 ) / 10;
-      // const sineY = Math.sin( (yAxisControl) * (Math.PI * 2) );
-      // const cosY = Math.cos( (yAxisControl) * (Math.PI * 2 ) );
-      // const normSineY = (sineY / 2) + 0.5;
-      // const normCosY = (cosY / 2) + 0.5;
-      
-      // // get og yPos with divide and floor
-      // let getYPos = Math.floor( idx / 10 ) * 10;
-      
-      // // // checkerboard Y mod
-      // const offsetY = idx % 2;
-      // const yPos = ( getYPos + offsetY ) % 10;
-      
-      // // calculate total height
-      // const totalHeight = (total/100) * 500;
-  
-      // // x and y translate 
-      // // translate pseudo Z axis, using scale
-      // item.style.transform = `
-      //   translate( 
-      //     ${ (normSineY * 100) }%,
-      //     ${ yPos * totalHeight }%
-      //   )
-      //   scale(${ handleScale( ( normCosY ) / 2) })
-      // `;
-      
       
     });
   
@@ -297,15 +190,6 @@ Webflow.push(function() {
   filter();
   render();
   tagOpacity();
-  
-  // (hoist) if size is small make 0, make the little ones in the back 'dissapear'
-  function handleScale( amt ) {
-    if( amt < 0.2 ) {
-      return 0
-    } else {
-      return Math.pow(amt, 0.25);
-    }
-  }
   
   // get the interactive buttons
   const englishButton = document.querySelector("#news-lang-english");

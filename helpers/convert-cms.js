@@ -1,5 +1,24 @@
 import { fetchMojes } from "./fetch.js";
+// remove OCR text, and Automated
+function cleanBodyText(htmlString) {
+  if (!htmlString) return "";
 
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, "text/html");
+
+  const body = doc.body;
+
+  // Remove leading label (e.g., <b>Automated Translation:</b><br> or <b>OCR text:</b><br>)
+  const firstBold = body.querySelector("b");
+  if (firstBold && firstBold.nextSibling && firstBold.nextSibling.textContent.trim() === "") {
+    firstBold.remove(); // remove the <b>
+    const br = body.querySelector("br");
+    if (br) br.remove(); // remove the <br> after <b>
+  }
+
+  // Return cleaned plain text version (optional: you could also keep HTML here if you want)
+  return body.innerHTML;
+}
 
 // Function to convert JSON array to CSV format
 function convertToCSV(data) {
@@ -35,6 +54,15 @@ function downloadCSV(csvData, filename) {
   a.click();
 }
 
+function downloadJSON(jsonData, filename) {
+  const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.setAttribute('download', filename);
+  a.click();
+}
+
 function parseDescription(description) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(description, 'text/html');
@@ -59,7 +87,7 @@ function parseDescription(description) {
 
   return returnObj; 
 }
-
+  
 function parseName( title ) {
   const prefix = "Mojes Worli: ";
   if( title.startsWith( prefix ) ) {
@@ -87,32 +115,38 @@ function extractHeadline(text) {
   }
   return null;
 }
+function array2string( str ) {
+  return str ? str.join(", ") : "";
+}
 
 export function convertMojesToCSV() {
   console.log("fired?")
   fetchMojes().then( (data) => {
     // filter data in json format before csv convert
     // get rid of Mojes Worli
-    const mapped = data.map((item) => {
+    const mapped = data.map((item, idx) => {
       const descripDe = parseDescription( item.description );
       
       // parse the description html into seperate fields
       const newJson = {
         // "name": parseName( item.title ),
+        "_type": "newspaperItem",
+        "_slug": `${item.date}-${idx}`,
         "name": `${descripDe.headlineTranslation?.slice(0, 200)}-import-01`,
-        "english-title": descripDe.headlineTranslation,
-        "marathi-title": extractHeadline( item.content ),
-        "keywords": item.keywords ? item.keywords.join(", ") : "",
-        "date-published": item.date,
-        "type": item.author,
+        "englishTitle": descripDe.headlineTranslation,
+        "marathiTitle": extractHeadline( item.content ),
+        "keywords": array2string(item.keywords),
+        "datePublished": item.date,
+        "type": array2string(item.author),
         "publisher": item.publisher,
-        "place": item.place,
-        "language": item.language,
+        "place": array2string(item.place),
+        "language": array2string(item.language),
         "voices": descripDe.voices,
-        "larger-questions": descripDe.largerQuestions,
-        "body-text-english": item.translation,
-        "body-text-marathi": item.content,
-        "image-id": item.id
+        "largerQuestions": descripDe.largerQuestions,
+        "bodyTextEnglish": cleanBodyText(item.translation),
+        "bodyTextMarathi": cleanBodyText(item.content),
+        "imageId": item.id,
+        "articleId": item.articleId
       }
       return newJson;
   
@@ -121,8 +155,9 @@ export function convertMojesToCSV() {
     console.log("amppeed", mapped)
   
     
-    // console.log("csvData", csvData)
-    
+    // ✅ Download JSON file
+    downloadJSON(mapped, 'mojes_data.json');
+
     // Download the CSV file
     const csvData = convertToCSV( mapped );
     downloadCSV(csvData, 'mojes_data.csv');
